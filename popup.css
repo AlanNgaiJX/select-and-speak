@@ -1,0 +1,101 @@
+/* 全局公共样式 */
+body {
+  min-width: 360px;
+  background-color: #f9f9f9;
+}
+
+li {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* 面板公共样式 */
+.pannel {
+  border: 1px solid #eee;
+  padding: 10px;
+  box-shadow: rgba(0, 0, 0, 0.09) 0px 6px 9px 0px;
+  background-color: #fff;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.pannel-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.list-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.list-divide {
+  height: 1px;
+  width: 100%;
+  margin-bottom: 20px;
+  background-color: #eee;
+}
+
+.label {
+  width: 40px;
+}
+.content {
+  display: flex;
+  align-items: center;
+}
+
+.content .value {
+  background-color: #eee;
+  color: #333;
+  padding: 0 5px;
+}
+
+.btn-group {
+  display: flex;
+}
+
+.btn-group button {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+/* 细节样式 */
+.picker-label {
+  margin-right: 3px;
+}
+
+.color-picker {
+  margin-right: 10px;
+}
+
+.color-picker input {
+  width: 20px;
+  height: 20px;
+}
+
+.opacity-picker {
+  display: flex;
+  align-items: center;
+}
+
+.opacity-picker input {
+  width: 50px;
+}
+
+.high-light-exp{
+  margin-left: 20px;
+}
+
+.mode-selects {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.btn-play-page {
+  margin-left: 5px;
+}

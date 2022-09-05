@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="pannel">
+        <div class="pannel-title">设置</div>
+        <ul class="list">
+          <!-- 开关 -->
+          <li class="list-item">
+            <div class="label">开关</div>
+            <div class="content">
+              <button
+                class="switch-btn on"
+                @click="setEnable(true)"
+                v-if="!enable"
+              >
+                打开
+              </button>
+              <button class="switch-btn off" @click="setEnable(false)" v-else>
+                关闭
+              </button>
+            </div>
+          </li>
+          <!-- 音量 -->
+          <li class="list-item">
+            <div class="label">音量</div>
+            <div class="content">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                v-model="volumn"
+              /><span class="value">{{volumn}}</span>
+            </div>
+          </li>
+          <!-- 语速 -->
+          <li class="list-item">
+            <div class="label">语速</div>
+            <div class="content">
+              <input
+                type="range"
+                min="0.5"
+                max="4"
+                step="0.1"
+                v-model="rate"
+              /><span class="value">{{rate}}</span>
+            </div>
+          </li>
+          <!-- 语调 -->
+          <li class="list-item">
+            <div class="label">音调</div>
+            <div class="content">
+              <input
+                type="range"
+                min="0"
+                max="2"
+                step="0.1"
+                v-model="pitch"
+              /><span class="value">{{pitch}}</span>
+            </div>
+          </li>
+          <!-- 声音 -->
+          <li class="list-item">
+            <div class="label">声音</div>
+            <div class="content">
+              <select v-if="voices.length" v-model="currVoicesIndex">
+                <option v-for="(item,index) in voices" :value="index">
+                  {{item.name}}
+                </option>
+              </select>
+              <div v-else>voices loading...</div>
+            </div>
+          </li>
+          <!-- 高亮样式 -->
+          <li class="list-item">
+            <div class="label">高亮</div>
+            <div class="content">
+              <div class="color-picker">
+                <span class="picker-label">颜色</span>
+                <input type="color" v-model="color_hex" />
+              </div>
+              <div class="opacity-picker">
+                <span class="picker-label">透明度</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  v-model="color_opacity"
+                /><span class="value">{{color_opacity}}</span>
+              </div>
+              <div
+                class="high-light-exp"
+                :style="{'background-color': color_highLight}"
+              >
+                {{color_highLight}}
+              </div>
+            </div>
+          </li>
+          <li class="btn-group">
+            <button @click="reset">重置所有设置</button>
+          </li>
+        </ul>
+      </div>
+      <div class="pannel">
+        <div class="pannel-title">播放</div>
+        <ul class="list">
+          <!-- 默认模式 -->
+          <li class="list-item">
+            <div class="label">默认</div>
+            <div class="content">复制后，立即播放</div>
+          </li>
+          <!-- 定制模式 -->
+          <li class="list-item">
+            <div class="label">定制</div>
+            <div class="content">
+              以
+              <select
+                v-if="modes.length"
+                v-model="currModesIndex"
+                class="mode-selects"
+              >
+                <option v-for="(item,index) in modes" :value="index">
+                  {{item.name}}
+                </option>
+              </select>
+              模式
+              <button @click="playThisPage" class="btn-play-page">
+                播放此页
+              </button>
+            </div>
+          </li>
+          <!-- 分界线 -->
+          <li class="list-divide"></li>
+          <!-- 控制台 -->
+          <li class="list-item">
+            <div class="label">控制</div>
+            <div class="content">
+              <div class="btn-group">
+                <button @click="pause">暂停</button>
+                <button @click="resume">继续</button>
+                <button @click="cancelAll">取消</button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <script src="./lib/vue@2.6.14.js"></script>
+    <script src="./popup.js"></script>
+  </body>
+</html>
