@@ -21,7 +21,6 @@ const vm = new Vue({
       currModesIndex: 0,
       color_hex: "#0000ff",
       color_opacity: 0.15,
-      color_highLight: "#0000ff26",
     },
   },
   computed: {
@@ -136,35 +135,64 @@ const vm = new Vue({
   },
   watch: {
     enable(nv) {
-      bg.update_enable(nv);
-      if (nv === false) {
-      }
+      this.updateBg("enable", nv);
     },
     currVoicesIndex(nv) {
-      bg.update_currVoicesIndex(nv);
+      this.updateBg("currVoicesIndex", nv);
+    },
+    volumn(nv) {
+      this.updateBg("volumn", nv);
     },
     rate(nv) {
-      bg.update_rate(nv);
+      this.updateBg("rate", nv);
     },
     pitch(nv) {
-      bg.update_pitch(nv);
+      this.updateBg("pitch", nv);
     },
     color_highLight(nv) {
-      bg.update_color_hex(this.color_hex);
-      bg.update_color_opacity(this.color_opacity);
-      bg.update_color_highLight(nv);
+      this.updateBg("color_hex", this.color_hex);
+      this.updateBg("color_opacity", this.color_opacity);
+      this.updateBg("color_highLight", nv);
+    },
+    currModesIndex() {
+      this.updateBg("currModesIndex", nv);
     },
   },
   methods: {
+    updateBg(key, val) {
+      return triggerApi("updateData", {
+        key,
+        val,
+      });
+    },
+    getBg(key) {
+      return triggerApi("getData", {
+        key,
+      });
+    },
     setEnable(value) {
       this.enable = value;
       this.cancelAll();
     },
-    reset() {
-      this.enable = this.reset.enable;
-      this.rate = this.reset.rate;
-      this.pitch = this.reset.pitch;
-      this.currVoicesIndex = this.reset.currVoicesIndex;
+    restAll() {
+      const {
+        enable,
+        volumn,
+        rate,
+        pitch,
+        color_hex,
+        color_opacity,
+        currVoicesIndex,
+        currModesIndex,
+      } = this.reset;
+      this.enable = enable;
+      this.volumn = volumn;
+      this.rate = rate;
+      this.pitch = pitch;
+      this.color_hex = color_hex;
+      this.color_opacity = color_opacity;
+      this.currVoicesIndex = currVoicesIndex;
+      this.currModesIndex = currModesIndex;
     },
     async playThisPage() {
       const currTabId = await getCurrentTabId();
@@ -172,14 +200,12 @@ const vm = new Vue({
       connect.postMessage("playThisPage");
     },
     async pause() {
-      const currSpeakTabId =
-        chrome.extension.getBackgroundPage().data.currSpeakTabId;
+      const currSpeakTabId = await this.getBg("currSpeakTabId");
       const connect = chrome.tabs.connect(currSpeakTabId, { name: "pause" });
       connect.postMessage("pause");
     },
     async resume() {
-      const currSpeakTabId =
-        chrome.extension.getBackgroundPage().data.currSpeakTabId;
+      const currSpeakTabId = await this.getBg("currSpeakTabId");
       const connect = chrome.tabs.connect(currSpeakTabId, { name: "resume" });
       connect.postMessage("resume");
     },
@@ -189,31 +215,32 @@ const vm = new Vue({
         const connect = chrome.tabs.connect(tab.id, { name: "cancel" });
         connect.postMessage("cancel");
       });
-      bg.update_currSpeakTabId(null);
+      this.updateBg("currSpeakTabId", null);
     },
   },
-  mounted() {
-    bg = chrome.extension.getBackgroundPage();
-    const {
-      enable,
-      voices,
-      currVoicesIndex,
-      modes,
-      currModesIndex,
-      rate,
-      pitch,
-      color_hex,
-      color_opacity,
-    } = bg.data;
-    this.enable = enable;
-    this.rate = rate;
-    this.pitch = pitch;
-    this.voices = voices;
-    this.modes = modes;
-    this.color_hex = color_hex;
-    this.color_opacity = color_opacity;
-    this.currVoicesIndex = currVoicesIndex;
-    this.currModesIndex = currModesIndex;
+  ready() {
+    triggerApi("getData", { all: true }).then((bgData) => {
+      const {
+        enable,
+        voices,
+        currVoicesIndex,
+        modes,
+        currModesIndex,
+        rate,
+        pitch,
+        color_hex,
+        color_opacity,
+      } = bgData;
+      this.enable = enable;
+      this.rate = rate;
+      this.pitch = pitch;
+      this.voices = voices;
+      this.modes = modes;
+      this.color_hex = color_hex;
+      this.color_opacity = color_opacity;
+      this.currVoicesIndex = currVoicesIndex;
+      this.currModesIndex = currModesIndex;
+    });
   },
 });
 
@@ -237,4 +264,28 @@ function getAllTabs() {
       resolve(tabs);
     });
   });
+}
+
+// 【 向 background 发送信息 】
+function emitBackground(event_type, obj) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      JSON.stringify(
+        Object.assign(obj, {
+          event_type,
+        })
+      ),
+      function (res) {
+        const result = JSON.parse(res);
+        if (result.status === "success") {
+          resolve(result.data);
+        }
+      }
+    );
+  });
+}
+
+// 【 触发 background 的 api 】
+function triggerApi(apiKey, data) {
+  return emitBackground("triggerApi", Object.assign({ apiKey }, data));
 }

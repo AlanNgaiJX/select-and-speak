@@ -34,49 +34,21 @@ var data = {
   currSpeakTabId: null,
 };
 
-function update_currVoicesIndex(nv) {
-  data.currVoicesIndex = nv;
-}
-
-function update_currModesIndex(nv) {
-  data.currModesIndex = nv;
-}
-
-function update_volumn(nv) {
-  data.volumn = nv;
-}
-
-function update_rate(nv) {
-  data.rate = nv;
-}
-
-function update_pitch(nv) {
-  data.pitch = nv;
-}
-
-function update_enable(nv) {
-  data.enable = nv;
-}
-
-function update_currSpeakTabId(nv) {
-  data.currSpeakTabId = nv;
-}
-
-function update_color_hex(nv) {
-  data.color_hex = nv;
-}
-
-function update_color_opacity(nv) {
-  data.color_opacity = nv;
-}
-
-function update_color_highLight(nv) {
-  data.color_highLight = nv;
-}
-
 chrome.runtime.onInstalled.addListener(function () {
   // 设置当访问指定域名时 pageAction 才可用
-  setPageActionRule();
+  const rule = {
+    conditions: [
+      new chrome.declarativeContent.PageStateMatcher({
+        pageUrl: { schemes: ["https", "http"] },
+      }),
+    ],
+    actions: [new chrome.declarativeContent.ShowPageAction()],
+  };
+
+  // 添加的规则会在浏览器重新启动时保存，因此请按如下方式注册它们:
+  chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
+    chrome.declarativeContent.onPageChanged.addRules([rule]);
+  });
 
   // 部署 api 接口
   initApi();
@@ -84,6 +56,17 @@ chrome.runtime.onInstalled.addListener(function () {
 
 // 【 api，必须返回值，或 promise对象 】
 const api = {
+  updateData: function ({ key, val }) {
+    data[key] = val;
+    return true;
+  },
+  getData: function ({ key, all }) {
+    if (all) {
+      return data;
+    } else {
+      return data[key];
+    }
+  },
   getEnable: function () {
     return new Promise((resolve) => {
       resolve(data.enable);
@@ -137,23 +120,6 @@ const api = {
     });
   },
 };
-
-// 【 设置当访问指定域名时 pageAction 才可用 】
-function setPageActionRule() {
-  const rule_1 = {
-    conditions: [
-      new chrome.declarativeContent.PageStateMatcher({
-        pageUrl: { schemes: ["https", "http"] },
-      }),
-    ],
-    actions: [new chrome.declarativeContent.ShowPageAction()],
-  };
-
-  // 添加的规则会在浏览器重新启动时保存，因此请按如下方式注册它们:
-  chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
-    chrome.declarativeContent.onPageChanged.addRules([rule_1]);
-  });
-}
 
 // 【 部署 Api 】
 function initApi() {
